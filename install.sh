@@ -10,3 +10,7 @@ echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.l
 apt-get update
 apt-get install -y libfuse2 vim wget jq kubeadm
 
+mkdir -p  /root/.ssh
+cp publicKey /root/.ssh/authorized_keys
+sed -i 's/#PasswordAuthentication\ yes/PasswordAuthentication\ no/g' /etc/ssh/sshd_config
+sed -i "s/black-pearl/cluster$1/g" /boot/device-init.yaml
