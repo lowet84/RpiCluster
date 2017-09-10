@@ -14,3 +14,5 @@ mkdir -p  /root/.ssh
 cp publicKey /root/.ssh/authorized_keys
 sed -i 's/#PasswordAuthentication\ yes/PasswordAuthentication\ no/g' /etc/ssh/sshd_config
 sed -i "s/black-pearl/cluster$1/g" /boot/device-init.yaml
+
+reboot
