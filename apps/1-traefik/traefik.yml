@@ -80,7 +80,6 @@ spec:
   ports:
   - port: 8080
     name: "ui"
-    nodePort: 30808
   - port: 80
     name: "web"
     nodePort: 30080
@@ -100,3 +99,29 @@ spec:
       - backend:
           serviceName: traefik
           servicePort: 8080
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: traefik-port80
+  namespace: kube-system
+spec:
+  template:
+    metadata:
+      labels:
+        app: traefik-port80
+    spec:
+      hostNetwork: true
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: traefik-port80
+        image: lowet84/traefik-port-forward
+        env:
+        - name: REMOTE_PORT
+          value: "80"
+        - name: K8S_PORT
+          value: "30080"
+      nodeSelector:
+        node-role.kubernetes.io/master:
