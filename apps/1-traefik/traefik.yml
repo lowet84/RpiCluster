@@ -1,0 +1,58 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: traefik
+        image: hypriot/rpi-traefik
+        ports:
+        - containerPort: 80
+        - containerPort: 8080
+        args:
+        - --web
+        - --kubernetes
+        - --logLevel=DEBUG
+      nodeSelector:
+        node-role.kubernetes.io/master: 
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    name: "ui"
+    nodePort: 30808
+  - port: 80
+    name: "web"
+    nodePort: 30080
+  selector: 
+    app: traefik
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: traefik-web-ui
+  namespace: kube-system
+spec:
+  rules:
+  - host: traefik.cluster
+    http:
+      paths:
+      - backend:
+          serviceName: traefik
+          servicePort: 8080
